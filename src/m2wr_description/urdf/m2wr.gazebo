@@ -24,6 +24,7 @@
       <odometryTopic>odom</odometryTopic>
       <odometryFrame>odom</odometryFrame>
       <robotBaseFrame>link_chassis</robotBaseFrame>
+      <legacyMode>false</legacyMode>
     </plugin>
   </gazebo>
   
