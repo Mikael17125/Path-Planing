@@ -4,13 +4,13 @@
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <geometry_msgs/Vector3.h>
-#include <vector.h>
+#include <vector>
 
 class Laser
 {
 public:
-    geometry_msgs::Vector3 divideRegion();
-    double foundMinimum();
+    geometry_msgs::Vector3 divideRegion(sensor_msgs::LaserScan data);
+    double foundMinimum(const std::vector<double> &data);
 };
 
 Laser process;
