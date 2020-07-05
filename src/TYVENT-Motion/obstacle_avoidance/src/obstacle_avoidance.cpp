@@ -13,7 +13,9 @@ int main(int argc, char **argv)
 
     while (ros::ok())
     {
-        obAvd.setDecision(laser_dist);
+        // obAvd.setDecision(laser_dist);
+        obAvd.setWallState(laser_dist);
+        obAvd.wallFollower();
 
         cmd_pub.publish(msg);
         ros::spinOnce();
@@ -31,15 +33,14 @@ void laserCallback(geometry_msgs::Vector3 const &msg)
 ObstacleAvoidance::ObstacleAvoidance()
 {
     roboState = FORWARD;
-    th_x = 0.8;
-    th_y = 0.8;
-    th_z = 0.8;
+    wallState = FIND_WALL;
+    th_x = 1.5;
+    th_y = 1.5;
+    th_z = 1.5;
 }
 
 void ObstacleAvoidance::setDecision(geometry_msgs::Vector3 const &dist)
 {
-    ROS_INFO("DIST [%f]", dist.x);
-
     switch (roboState)
     {
     case FORWARD:
@@ -71,6 +72,61 @@ void ObstacleAvoidance::setDecision(geometry_msgs::Vector3 const &dist)
             roboState = FORWARD;
         else if (dist.x < th_x || (dist.y < th_y && dist.z > th_z))
             roboState = LEFT;
+        break;
+    }
+
+    msg.linear.x = lin_x;
+    msg.angular.z = ang_z;
+}
+
+void ObstacleAvoidance::setWallState(geometry_msgs::Vector3 const &dist)
+{
+
+    if (dist.z < 0.3  || dist.y < 0.3 || dist.y < 0.3)
+        wallState = 3;
+    else if (dist.z > th_z && dist.y > th_y && dist.y > th_x) // 0 0 0
+        wallState = 0;
+    else if (dist.z > th_z && dist.y > th_y && dist.x < th_x) // 0 0 1
+        wallState = 2;
+    else if (dist.z > th_z && dist.y < th_y && dist.x > th_x) // 0 1 0
+        wallState = 1;
+    else if (dist.z > th_z && dist.y < th_y && dist.x < th_x) // 0 1 1
+        wallState = 1;
+    else if (dist.z < th_z && dist.y > th_y && dist.x > th_x) // 1 0 0
+        wallState = 0;
+    else if (dist.z < th_z && dist.y > th_y && dist.x < th_x) // 1 0 1
+        wallState = 0;
+    else if (dist.z < th_z && dist.y < th_y && dist.x > th_x) // 1 1 0
+        wallState = 1;
+    else
+        wallState = 1;
+}
+
+void ObstacleAvoidance::wallFollower()
+{
+
+    ROS_INFO("STATE [%d]", wallState);
+
+    switch (wallState)
+    {
+    case FIND_WALL:
+        lin_x = 0.4;
+        ang_z = 0.6;
+        break;
+
+    case TURN:
+        lin_x = 0.1;
+        ang_z = -0.5;
+        break;
+
+    case FOLLOW_WALL:
+        lin_x = 0.6;
+        ang_z = 0;
+        break;
+
+    case NORMALIZATION:
+        lin_x = -0.6;
+        ang_z = 0;
         break;
     }
 
