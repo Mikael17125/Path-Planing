@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   geometry_msgs
+  nav_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES obstacle_avoidance
-  CATKIN_DEPENDS roscpp sensor_msgs std_msgs geometry_msgs
+  CATKIN_DEPENDS roscpp sensor_msgs std_msgs geometry_msgs nav_msgs
 #  DEPENDS system_lib
 )
 

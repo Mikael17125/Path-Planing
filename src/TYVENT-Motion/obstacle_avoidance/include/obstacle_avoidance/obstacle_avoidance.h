@@ -4,18 +4,20 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Vector3.h>
 #include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+#include <cmath>
 
 class ObstacleAvoidance
 {
 public:
-    enum State
+    enum MotionState
     {
-        FORWARD = 0,
-        LEFT = 1,
-        RIGHT = 2,
+        ROTATE = 0,
+        FORWARD = 1,
     };
 
-    enum WallState{
+    enum WallState
+    {
         FIND_WALL = 0,
         TURN = 1,
         FOLLOW_WALL = 2,
@@ -25,21 +27,36 @@ public:
     ObstacleAvoidance();
     void setDecision(geometry_msgs::Vector3 const &dist);
     void setWallState(geometry_msgs::Vector3 const &dist);
+    void gotoDesiredPos(double x, double y);
     void wallFollower();
+    bool isObstacle();
+    bool isArrived(int x, int y);
+    void stop();
+};
+
+enum MainState
+{
+    GO_DESIRED = 0,
+    WALL_FOLLOWER = 1,
+    STOP = 2,
 };
 
 ObstacleAvoidance obAvd;
 
-int roboState;
-int wallState;
-double lin_x, ang_z;
-double th_x,th_y,th_z;
+int ANGLE_TOLERANCE;
 
-geometry_msgs::Vector3 laser_dist;
-geometry_msgs::Twist msg; 
+int motionState;
+int wallState;
+int mainState;
+double lin_x, ang_z;
+double th_x, th_y, th_z;
+double pos_x, pos_y;
+double ori_yaw;
+double res, angle;
+
+geometry_msgs::Twist msg;
 
 void laserCallback(geometry_msgs::Vector3 const &msg);
-void wallFollower(int state);
-
+void odomCallback(nav_msgs::Odometry const &msg);
 
 #endif
